@@ -20,10 +20,16 @@ const Splash = ({ navigation }) => {
       const token = await AsyncStorage.getItem('token'); // Check if token is present in AsyncStorage
       if (token) {
         // Navigate to "Home" if token is present
-        navigation.navigate('Home');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Home' }],
+        });
       } else {
         // Navigate to "Signin" if token is not present
-        navigation.navigate('Signin');
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Signin' }],
+        });
       }
     
   };

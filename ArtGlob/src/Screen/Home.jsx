@@ -10,7 +10,8 @@ import {
   PixelRatio,
   ImageBackground,
   Modal,
-  TextInput
+  TextInput,
+  ActivityIndicator
 } from "react-native";
 import { BlurView } from 'expo-blur';
 
@@ -223,6 +224,7 @@ await handleRefetch()
         return res.data.categories;
       }),
   });
+
   const { isLoading: isLoadingStats, error: errorStats, data: dataStats  } = useQuery({
     queryKey: ["partners"],
     queryFn: () =>
@@ -230,6 +232,7 @@ await handleRefetch()
         return res.data.trustedByList;
       }),
   });
+  
   const openImagePicker = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -249,9 +252,7 @@ await handleRefetch()
     }
     setNewImage(result.uri);
   };
-  
- 
-  
+
   useEffect(() => {
    
     async function fetchUsername() {
@@ -272,12 +273,16 @@ await handleRefetch()
     setPixelDensity(density);
   }, []); 
   if(isLoading && isLoadingStats){
-    return  <Text style={{ fontSize: 20, fontWeight: "bold", color: "#3A3A3A" }}>
-    Welcome  !
-  </Text>;
+    return   <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <ActivityIndicator size="large" color="#38164A" />
+  </View>
+  }
+  if(errorStats && error){
+   return <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+   <ActivityIndicator size="large" color="#38164A" /> </View>
   }
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.scrollView}>
     <View style={styles.container}>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <Text style={{ fontSize: 20, fontWeight: "bold", color: "#3A3A3A" }}>
@@ -461,13 +466,15 @@ await handleRefetch()
           flexDirection: "row",
           flexWrap: "wrap",
           justifyContent: "space-between",
-          gap: 4,
+          gap: 7,
           marginTop: "10%",
-          height: 200,
+          justifyContent: 'center',
+    alignItems: 'center',
+          
         }}
       >
      
-     {data.map((category) => (
+     {data &&(data?.map((category) => (
        <TouchableOpacity
        key={category.id}
        style={styles.categoryContainer}
@@ -478,7 +485,7 @@ await handleRefetch()
          <Text style={styles.title}>{category.title}</Text>
        </View>
      </TouchableOpacity>
-      ))}
+      )))}
 
       </View>
      
@@ -556,13 +563,14 @@ await handleRefetch()
           flexDirection: "row",
           flexWrap: "wrap",
           justifyContent: "space-between",
-          gap: 4,
+          gap: 7,
           marginTop: "10%",
-          height: 200,
+          justifyContent: 'center',
+    alignItems: 'center',
         }}
       >
      
-     {dataStats.map((partner) => (
+     {dataStats &&(dataStats?.map((partner) => (
        <TouchableOpacity
        key={partner.id}
        style={styles.categoryContainer}
@@ -573,7 +581,7 @@ await handleRefetch()
          <Text style={styles.title}>{partner.title}</Text>
        </View>
      </TouchableOpacity>
-      ))}
+      )))}
 
       </View>
       
@@ -670,6 +678,10 @@ const styles = StyleSheet.create({
     marginRight: "2%",
     marginTop: "10%",
     flexDirection: "column",
+    flex: 1, // Make sure the container takes the available space vertically
+  },
+  scrollView: {
+    flex: 1, // Allow the ScrollView to take the available space
   },
 
   categoryContainer: {
