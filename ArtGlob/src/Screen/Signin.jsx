@@ -17,8 +17,10 @@ await AsyncStorage.setItem("token",res.data.token)
 await AsyncStorage.setItem("username",res.data.user.username)
 await AsyncStorage.setItem("role",res.data.user.role)
       // Perform navigation to the admin dashboard or display a success message
-      navigation.navigate("Home")
-    
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Home' }],
+      });
     } catch (err) {
       alert(err.response.data.message);
     } finally {

@@ -11,6 +11,8 @@ import Notification from "./Screen/Notification";
 import Signin from "./Screen/Signin";
 import Category from "./Screen/Category";
 import Partner from "./Screen/Partner";
+import Product from "./Screen/Product";
+import Reviews from "./Screen/Reviews";
 
 function Main() {
   return (
@@ -25,7 +27,19 @@ function Main() {
           name="Signin"
           component={Signin}
           options={{ headerShown: false }}
-        /><Stack.Screen
+          
+        />
+         <Stack.Screen
+          name="Reviews"
+          component={Reviews}
+          options={{ headerShown: false }}
+          
+        />
+         <Stack.Screen
+          name="Product"
+          component={Product}
+          options={{ headerShown: false }}/>
+          <Stack.Screen
         name="Partner"
         component={Partner}
         options={{ headerShown: false }}

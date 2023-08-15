@@ -4,6 +4,7 @@ import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useQueryClient } from '@tanstack/react-query';
+import BackIcon from '../../assets/Images/back-icon.png'
 const Category = ({ navigation,route }) => {
   const { category } = route.params; // Access the props from route.params
 
@@ -121,6 +122,9 @@ const handleRefetch = async () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Image source={BackIcon} style={styles.backIcon} />
+      </TouchableOpacity>
        <TouchableOpacity onPress={openImagePicker}>
       <Image source={{ uri: Source }} style={styles.image} />
     </TouchableOpacity>
@@ -131,7 +135,7 @@ const handleRefetch = async () => {
           onChangeText={setEditedTitle}
         />
       ) : (
-        <Text style={styles.title}>{editedTitle}</Text>
+        <Text style={styles.title}>{"Title: "}{editedTitle}</Text>
       )}
       {isEditing ? (
         <TextInput
@@ -141,7 +145,7 @@ const handleRefetch = async () => {
           multiline
         />
       ) : (
-        <Text style={styles.description}>{editedDesc}</Text>
+        <Text style={styles.description}>{"Description: "}{editedDesc}</Text>
       )}
       {isEditing ? (
         <TouchableOpacity style={styles.button} onPress={handleSave}>
@@ -168,8 +172,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   image: {
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 300,
     marginBottom: 16,
     resizeMode: 'cover',
     borderRadius: 10,
@@ -184,6 +188,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 60,
+    left: 20,
+    zIndex: 1,
+  },
+  backIcon: {
+    width: 50,
+    height: 50,
+    resizeMode: 'contain',
   },
   editableField: {
     fontSize: 16,

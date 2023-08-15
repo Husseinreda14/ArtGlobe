@@ -4,6 +4,7 @@ import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import { useQueryClient } from '@tanstack/react-query';
+import BackIcon from '../../assets/Images/back-icon.png'
 const Partner = ({ navigation,route }) => {
   const { partner } = route.params; // Access the props from route.params
 
@@ -120,6 +121,9 @@ const handleRefetch = async () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+           <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <Image source={BackIcon} style={styles.backIcon} />
+      </TouchableOpacity>
        <TouchableOpacity onPress={openImagePicker}>
       <Image source={{ uri: Source }} style={styles.image} />
     </TouchableOpacity>
@@ -167,8 +171,8 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   image: {
-    width: 200,
-    height: 200,
+    width: 300,
+    height: 300,
     marginBottom: 16,
     resizeMode: 'cover',
     borderRadius: 10,
@@ -193,6 +197,17 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     padding: 8,
     width: '100%',
+  },
+  backButton: {
+    position: 'absolute',
+    top: 60,
+    left: 20,
+    zIndex: 1,
+  },
+  backIcon: {
+    width: 50,
+    height: 50,
+    resizeMode: 'contain',
   },
   button: {
     backgroundColor: '#38164A',

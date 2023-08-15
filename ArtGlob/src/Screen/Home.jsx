@@ -11,10 +11,12 @@ import {
   ImageBackground,
   Modal,
   TextInput,
-  ActivityIndicator
+  ActivityIndicator,
+  Dimensions,
+  SafeAreaView
 } from "react-native";
 import { BlurView } from 'expo-blur';
-
+  import { BarChart, LineChart } from 'react-native-chart-kit';
 import Add from "./../../assets/Images/Group10048.png";
 import notification from "./../../assets/Images/Vector(1).png";
 import rectangle from "./../../assets/Images/Rectangle5505.png";
@@ -45,6 +47,7 @@ const queryClient = useQueryClient();
   // AsyncStorage.clear()
   
   const [isModalVisible, setIsModalVisible] = useState(false);
+  // const [chart, setChart] = useState();
   const [isModalVisible1, setIsModalVisible1] = useState(false);
   const [adminModelVisible, setAdminModelVisible] = useState(false);
   const openModal = () => {
@@ -232,6 +235,20 @@ await handleRefetch()
         return res.data.trustedByList;
       }),
   });
+  const { isLoading: isLoadingStats1, error: errorStats1, data: dataStats1  } = useQuery({
+    queryKey: ["products"],
+    queryFn: () =>
+      axios.get(`http://${global.IP}:3003/product/getAll`).then((res) => {
+        return res.data.products;
+      }),
+  });
+  const { isLoading: isLoadingStats2, error: errorStats2, data: dataStats2 } = useQuery({
+    queryKey: ['stats'],
+    queryFn: () =>
+      axios.get(`http://${global.IP}:3003/user/getStatistics`).then((res) => {
+        return res.data.data;
+      }),
+  });
   
   const openImagePicker = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -253,6 +270,10 @@ await handleRefetch()
     setNewImage(result.uri);
   };
 
+
+
+
+
   useEffect(() => {
    
     async function fetchUsername() {
@@ -272,86 +293,65 @@ await handleRefetch()
     const density = PixelRatio.get();
     setPixelDensity(density);
   }, []); 
-  if(isLoading && isLoadingStats){
+  if(isLoading && isLoadingStats && isLoadingStats1 && isLoadingStats2){
     return   <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
     <ActivityIndicator size="large" color="#38164A" />
   </View>
   }
-  if(errorStats && error){
+  if(errorStats && error && errorStats1 &&errorStats2){
    return <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
    <ActivityIndicator size="large" color="#38164A" /> </View>
   }
   return (
-    <ScrollView contentContainerStyle={styles.scrollView}>
+    <SafeAreaView style={styles.container}>
+    <ScrollView style={{ height: "100%" ,paddingHorizontal:8}}>
     <View style={styles.container}>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
         <Text style={{ fontSize: 20, fontWeight: "bold", color: "#3A3A3A" }}>
           Welcome {username} !
         </Text>
 
-        <View style={{ flexDirection: "row", gap: 4 }}>
+        <View style={{ flexDirection: "row", gap: 10 ,marginBottom:20}}>
         {role=="Super-Admin" && (
   <TouchableOpacity onPress={OpenAdminModel}>
     <Image source={Add} style={{ width: 30, height: 30 }} />
   </TouchableOpacity>
 )}
-          <Image source={notification} style={{ width: 25, height: 28 }} />
+          {/* <Image source={notification} style={{ width: 25, height: 28 }} /> */}
         </View>
       </View>
-      {/* <View>
-        <ImageBackground
-          source={rectangle}
-          style={{
-            width: "100%",
-            height: 100,
+      <View>
 
-            overflow: "hidden",
-            marginTop: "10%",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <View
-            //i want this text in the previous image
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              width: "80%",
-              marginBottom: "3%",
-            }}
-          >
-            <View style={{ flexDirection: "column" }}>
-              <Text
-                style={{ fontSize: 25, color: "#1C3AAB", fontWeight: "bold" }}
-              >
-                1200 $
-              </Text>
-              <Text style={{ fontSize: 10, color: "#3A3A3A" }}>
-                Total Profit Raised
-              </Text>
-            </View>
-            <View
-              style={{
-                backgroundColor: "#7ED957",
-                width: 134,
-
-                height: 45,
-                borderRadius: 20,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text
-                style={{ fontSize: 15, color: "#ffffff", fontWeight: "bold" }}
-              >
-                This Month
-              </Text>
-            </View>
-          </View>
-        </ImageBackground>
-      </View> */}
+      <BarChart
+        data={{
+          labels: ['Sellers', 'Buyers', 'Products', 'Orders', 'Reviews'],
+          datasets: [
+            {
+              data: [dataStats2?.Sellers, dataStats2?.buyers, dataStats2?.Products, dataStats2?.orders, dataStats2?.userReviews],
+              // color: (opacity = 1) => `rgba(128, 0, 0, ${opacity})`, // Customize bar color here
+            },
+          ],
+        }}
+        width={350}
+        height={200}
+        yAxisLabel={''}
+        chartConfig={{
+          backgroundColor: '#38164A',
+          backgroundGradientFrom:  '#fff',
+          backgroundGradientTo:  '#fff',
+          decimalPlaces:0 ,
+          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+          style: {
+            borderRadius: 16,
+          },
+        }}
+        style={{
+          marginVertical: 8,
+          borderRadius: 16,
+        }}
+      />
+   
+      </View>
       <View
         style={{
           flexDirection: "row",
@@ -412,7 +412,17 @@ await handleRefetch()
 <Modal visible={adminModelVisible} animationType="slide" transparent>
   <View style={styles.modalContainer}>
   <BlurView intensity={100} style={styles.blurView}>
- 
+  <Text style={{
+    // backgroundColor: "#38164A",
+    paddingVertical: 10,
+    marginBottom:30,
+    color:"black",
+  fontWeight:"bold",
+    fontSize:20,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+    marginTop: 10,
+  }}>Add Admin</Text>
     
     <TextInput
       style={styles.input}
@@ -483,6 +493,99 @@ await handleRefetch()
        <View style={styles.imageContainer}>
          <Image source={{ uri: category.Image }} style={styles.image} />
          <Text style={styles.title}>{category.title}</Text>
+       </View>
+     </TouchableOpacity>
+      )))}
+
+      </View>
+     
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginTop: "10%",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            color: "#3A3A3A",
+          }}
+        >
+          Products
+        </Text>
+        {/* <Image source={Add} style={{ width: 30, height: 30 }} /> */}
+
+      </View>
+      <View>
+   
+      <Modal visible={isModalVisible} animationType="slide" transparent>
+  <View style={styles.modalContainer}>
+  <BlurView intensity={100} style={styles.blurView}>
+  {newImage && (
+      <Image style={styles.modalImage} source={{ uri: newImage }} />
+    )}
+     {!newImage && (
+    
+    <TouchableOpacity  onPress={openImagePicker} style={styles.addButtonModal}>
+      <Text style={styles.addButtonText}>Add Image</Text>
+    </TouchableOpacity>
+     )}
+    
+    <TextInput
+      style={styles.input}
+      placeholder="Title"
+      value={newTitle}
+      onChangeText={setNewTitle}
+    />
+    <TextInput
+      style={styles.input}
+      placeholder="Description"
+      value={newDesc}
+      onChangeText={setNewDesc}
+    />
+    <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+      <Text style={styles.buttonText}>Add</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={styles.button} onPress={closeModal}>
+      <Text style={styles.buttonText}>Cancel</Text>
+    </TouchableOpacity>
+    </BlurView>
+  </View>
+</Modal>
+
+
+
+
+
+
+
+
+  
+</View>
+      <View
+        style={{
+          flexDirection: "row",
+          flexWrap: "wrap",
+          justifyContent: "space-between",
+          gap: 7,
+          marginTop: "10%",
+          justifyContent: 'center',
+    alignItems: 'center',
+          
+        }}
+      >
+     
+     {dataStats1 &&(dataStats1?.map((product) => (
+       <TouchableOpacity
+       key={product.id}
+       style={styles.categoryContainer}
+       onPress={() => navigation.navigate('Product', { product })} // Handle category press
+     >
+       <View style={styles.imageContainer}>
+         <Image source={{ uri: product.coverImage }} style={styles.image} />
+         <Text style={styles.title}>{product.title}</Text>
        </View>
      </TouchableOpacity>
       )))}
@@ -586,12 +689,47 @@ await handleRefetch()
       </View>
       
     </View>
+    <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginTop: "10%",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            color: "#3A3A3A",
+          }}
+        >
+          About
+        </Text>
+        {/* <Image source={Add} style={{ width: 30, height: 30 }} /> */}
+
+      </View>
+   
+    <View style={styles.buttonBox}>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Privacy </Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>About Us</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>FAQS</Text>
+        </TouchableOpacity>
+      </View>
+    
     <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
   <Text style={styles.logoutButtonText}>Logout</Text>
 </TouchableOpacity>
     </ScrollView>
+    </SafeAreaView>
+    
   );
 }
+
 
 const styles = StyleSheet.create({
   logoutButton: {
@@ -629,6 +767,28 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     height:20,
     width:100
+  },
+  buttonBox: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    width: '100%',
+    marginTop:20,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    backgroundColor:"black",
+    borderRadius: 10,
+    padding: 20,
+  },
+  button: {
+    backgroundColor: '#38164A',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   passwordContainer: {
     flexDirection: "row",
@@ -674,14 +834,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   container: {
-    marginLeft: "2%",
-    marginRight: "2%",
-    marginTop: "10%",
-    flexDirection: "column",
+   
     flex: 1, // Make sure the container takes the available space vertically
   },
   scrollView: {
     flex: 1, // Allow the ScrollView to take the available space
+    marginHorizontal: 20,
   },
 
   categoryContainer: {
