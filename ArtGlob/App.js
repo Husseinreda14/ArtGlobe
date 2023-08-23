@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import Main from './src/Main';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 export default function App() {
-  global.IP="192.168.0.103";
+  global.IP="http://192.168.0.103:3003";
 
   const queryClient = new QueryClient();
   return (

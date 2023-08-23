@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, Image, ScrollView, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -48,7 +48,7 @@ const handleRefetch = async () => {
   
 
         const response = await axios.put(
-          `http://${global.IP}:3003/trustedby/${partner.id}`,
+          `${global.IP}/trustedby/${partner.id}`,
           formData,
           {
             headers: {
@@ -80,7 +80,7 @@ const handleRefetch = async () => {
   
 
         const response = await axios.delete(
-          `http://${global.IP}:3003/trustedby/${partner.id}`,
+          `${global.IP}/trustedby/${partner.id}`,
        
           {
             headers: {
@@ -94,7 +94,7 @@ const handleRefetch = async () => {
         // Handle response as needed
       
       } catch (error) {
-        alert(error.response.data);
+       Alert.alert(error.response.data);
       }
     
     // Perform save action, e.g., update the backend
@@ -103,7 +103,7 @@ const handleRefetch = async () => {
   const openImagePicker = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== "granted") {
-      alert("Permission to access media library is required!");
+      Alert.alert("Permission to access media library is required!");
       return;
     }
     let result = await ImagePicker.launchImageLibraryAsync({

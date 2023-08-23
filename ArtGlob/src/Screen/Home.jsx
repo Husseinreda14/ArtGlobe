@@ -13,7 +13,9 @@ import {
   TextInput,
   ActivityIndicator,
   Dimensions,
-  SafeAreaView
+  SafeAreaView,
+  Linking,
+  Alert
 } from "react-native";
 import { BlurView } from 'expo-blur';
   import { BarChart, LineChart } from 'react-native-chart-kit';
@@ -25,12 +27,56 @@ import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/re
 import * as ImagePicker from 'expo-image-picker';
 
 import axios from "axios";
+import StatsBar from "./StatsBar";
+
 const  Home=({ navigation })=> {
   const [username, setUsername] = useState('');
   const [role, setRole] = useState('');
+  const [token, setToken] = useState('');
   const [newImage, setNewImage] = useState('');
   const [showPassword, setShowPassword] = useState('');
+  const RecentlyJoinedUser = ({ user }) => {
+    return (
+      <TouchableOpacity    onPress={() => navigation.navigate('UserPage', { user })} >
+        <View style={styles.userContainer}>
+          <Image source={{ uri: user.avatar }} style={styles.avatar} />
+          <View style={styles.userInfo}>
+            <Text style={styles.userName}>{user.username}</Text>
+            <Text style={styles.email}>{user.email}</Text>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
+  const ContactUs = ({ user }) => {
+    const handleReply = () => {
+      const subject = 'Reply to Your Message  from ArtGlobe';
+      const body = `Dear ${user.email},\n\n`;
+  
+      // Open Gmail with pre-filled subject and body
+      const mailtoUrl = `mailto:${user.email}?subject=${encodeURIComponent(
+        subject
+      )}&body=${encodeURIComponent(body)}`;
+  
+      Linking.openURL(mailtoUrl);
+    };
+  
+    return (
+  
+        <View style={styles.userContainer}>
+         
+          <View style={styles.userInfo}>
+            <Text style={styles.userName}>{user.email}</Text>
+            <Text style={styles.email}>{user.message}</Text>
+             <TouchableOpacity style={styles.replyButton} onPress={handleReply}>
+          <Text style={styles.replyButtonText}>Reply</Text>
+        </TouchableOpacity>
+          </View>
+        </View>
+
+    );
+  };
 const [newTitle, setNewTitle] = useState('');
 const [newDesc, setNewDesc] = useState('');
 const [newEmail, SetEmail] = useState('');
@@ -82,8 +128,10 @@ const queryClient = useQueryClient();
   const handleSubmit =async () => {
     const token=await AsyncStorage.getItem("token")
    
-   
-    const formData = new FormData(); // Initialize FormData here
+   if(newImage=="" ||newTitle==""|| newDesc==""){
+    Alert.alert("All Fields are required")
+   }
+ else{   const formData = new FormData(); // Initialize FormData here
   
     // Append data to formData
     formData.append('title', newTitle);
@@ -104,7 +152,7 @@ const queryClient = useQueryClient();
   
 
         const response = await axios.post(
-          `http://${global.IP}:3003/category/createCategory`,
+          `${global.IP}/category/createCategory`,
           formData,
           {
             headers: {
@@ -122,10 +170,12 @@ await handleRefetch()
         closeModal(); 
         // Handle response as needed
   
-      
-      } catch (error) {
+        }  
+       
+      catch (error) {
        alert(error)
       }
+    }
   
   };
 
@@ -143,10 +193,13 @@ await handleRefetch()
     const token=await AsyncStorage.getItem("token")
    
     try {
+      if(newUsername=="" || newPassword=="" ||newEmail==""){
+Alert.alert("All fields are required!")
+      }
   
 
-        const response = await axios.post(
-          `http://${global.IP}:3003/auth/addAdmin`,
+       else{ const response = await axios.post(
+          `${global.IP}/auth/addAdmin`,
           {email:newEmail,password:newPassword,username:newUsername},
           {
             headers: {
@@ -163,18 +216,20 @@ await handleRefetch()
         
         closeAdminModel(); 
         // Handle response as needed
-  alert("admin Added Successfully")
-      
+  Alert.alert("admin Added Successfully")
+        }
       } catch (error) {
-        alert(error.response.data.message)
+        Alert.alert(error.response.data.message)
       }
   
   };
   const handlePartnerSubmit =async () => {
     const token=await AsyncStorage.getItem("token")
    
-   
-    const formData = new FormData(); // Initialize FormData here
+   if(newTitle=="" ||newImage==""){
+    Alert.alert("All fields are required")
+   }
+  else{  const formData = new FormData(); // Initialize FormData here
   
     // Append data to formData
     formData.append('title', newTitle);
@@ -195,7 +250,7 @@ await handleRefetch()
   
 
         const response = await axios.post(
-          `http://${global.IP}:3003/trustedBy/create`,
+          `${global.IP}/trustedBy/create`,
           formData,
           {
             headers: {
@@ -217,43 +272,63 @@ await handleRefetch()
       } catch (error) {
        
       }
-  
+    }
   };
 
   const { isLoading, error, data } = useQuery({
     queryKey: ["myCategories"],
     queryFn: () =>
-      axios.get(`http://${global.IP}:3003/category/getCategories`).then((res) => {
+      axios.get(`${global.IP}/category/getCategories`).then((res) => {
         return res.data.categories;
       }),
   });
-
+ 
+  
   const { isLoading: isLoadingStats, error: errorStats, data: dataStats  } = useQuery({
     queryKey: ["partners"],
     queryFn: () =>
-      axios.get(`http://${global.IP}:3003/trustedby/getAll`).then((res) => {
+      axios.get(`${global.IP}/trustedby/getAll`).then((res) => {
         return res.data.trustedByList;
       }),
   });
   const { isLoading: isLoadingStats1, error: errorStats1, data: dataStats1  } = useQuery({
     queryKey: ["products"],
     queryFn: () =>
-      axios.get(`http://${global.IP}:3003/product/getAll`).then((res) => {
+      axios.get(`${global.IP}/product/getAll`).then((res) => {
         return res.data.products;
       }),
   });
   const { isLoading: isLoadingStats2, error: errorStats2, data: dataStats2 } = useQuery({
     queryKey: ['stats'],
     queryFn: () =>
-      axios.get(`http://${global.IP}:3003/user/getStatistics`).then((res) => {
+      axios.get(`${global.IP}/user/getStatistics`).then((res) => {
         return res.data.data;
       }),
   });
+  const { isLoading: isLoadingStats3, error: errorStats3, data: dataStats3 } = useQuery({
+    queryKey: ['recent'],
+    queryFn: () =>
+      axios.get(`${global.IP}/user/getRecentlyJoinedUsers`,
+     
+      ).then((res) => {
+        return res.data.users;
+      }),
+  });
+  const { isLoading: isLoading4, error: errorStats4, data: dataStats4 } = useQuery({
+    queryKey: ['contact'],
+    queryFn: () =>
+      axios.get(`${global.IP}/user/GetContactUs`,
+     
+      ).then((res) => {
+        return res.data.Contact;
+      }),
+  });
+ 
   
   const openImagePicker = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      alert('Permission to access media library is required!');
+      Alert.alert('Permission to access media library is required!');
       return;
     }
   
@@ -280,8 +355,10 @@ await handleRefetch()
       try {
         const userName = await AsyncStorage.getItem('username');
         const Role=await AsyncStorage.getItem("role");
+        const token=await AsyncStorage.getItem("token")
         setUsername(userName);
         setRole(Role)
+        setToken(token)
       } catch (error) {
         console.error('Error fetching username:', error);
       }
@@ -293,64 +370,107 @@ await handleRefetch()
     const density = PixelRatio.get();
     setPixelDensity(density);
   }, []); 
-  if(isLoading && isLoadingStats && isLoadingStats1 && isLoadingStats2){
+  if(isLoading && isLoadingStats && isLoadingStats1 && isLoadingStats2 &&isLoadingStats3 && isLoading4){
     return   <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
     <ActivityIndicator size="large" color="#38164A" />
   </View>
   }
-  if(errorStats && error && errorStats1 &&errorStats2){
+  if(errorStats && error && errorStats1 &&errorStats2 &&errorStats3 &&errorStats4){
    return <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
    <ActivityIndicator size="large" color="#38164A" /> </View>
   }
+  const stats = ({ item }) => {
+    return (
+      <View
+        style={{
+          height: "100%",
+          padding: "3%",
+          width: "15%",
+          justifyContent: "center",
+        }}
+      >
+        <View
+          style={{
+            height: "80%",
+            backgroundColor: "rgba(160, 214, 255, 0.23)",
+            borderRadius: 20,
+            justifyContent: "flex-end",
+          }}
+        >
+          <View
+            style={{
+              width: "100%",
+              height: `${Math.min(
+                (item.finished_steps / item.steps) * 100,
+                100
+              )}%`,
+
+              backgroundColor: "#A0D6FF",
+              borderRadius: 20,
+            }}
+          ></View>
+        </View>
+        <Text
+          style={{
+            fontFamily: "Poppins-Light",
+            fontSize: 7,
+            color: "#3A3A3A",
+            alignSelf: "center",
+          }}
+        >
+          {item.createdAt.substring(0, 3)}
+        </Text>
+      </View>
+    );
+  };
   return (
     <SafeAreaView style={styles.container}>
     <ScrollView style={{ height: "100%" ,paddingHorizontal:8}}>
     <View style={styles.container}>
       <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-        <Text style={{ fontSize: 20, fontWeight: "bold", color: "#3A3A3A" }}>
+        <Text style={{ fontSize: 20, fontWeight: "bold", color: "#3A3A3A" ,marginTop:10}}>
           Welcome {username} !
         </Text>
 
         <View style={{ flexDirection: "row", gap: 10 ,marginBottom:20}}>
         {role=="Super-Admin" && (
   <TouchableOpacity onPress={OpenAdminModel}>
-    <Image source={Add} style={{ width: 30, height: 30 }} />
+    <Image source={Add} style={{ width: 30, height: 30 ,marginTop:10}} />
   </TouchableOpacity>
 )}
           {/* <Image source={notification} style={{ width: 25, height: 28 }} /> */}
         </View>
       </View>
       <View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginTop: "10%",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            color: "#3A3A3A",
+          }}
+        >
+          Stats
+        </Text>
+        {/* <Image source={Add} style={{ width: 30, height: 30 }} /> */}
 
-      <BarChart
-        data={{
+      </View>
+     
+   <StatsBar data={{
           labels: ['Sellers', 'Buyers', 'Products', 'Orders', 'Reviews'],
           datasets: [
             {
               data: [dataStats2?.Sellers, dataStats2?.buyers, dataStats2?.Products, dataStats2?.orders, dataStats2?.userReviews],
-              // color: (opacity = 1) => `rgba(128, 0, 0, ${opacity})`, // Customize bar color here
+            
             },
           ],
-        }}
-        width={350}
-        height={200}
-        yAxisLabel={''}
-        chartConfig={{
-          backgroundColor: '#38164A',
-          backgroundGradientFrom:  '#fff',
-          backgroundGradientTo:  '#fff',
-          decimalPlaces:0 ,
-          color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-          style: {
-            borderRadius: 16,
-          },
-        }}
-        style={{
-          marginVertical: 8,
-          borderRadius: 16,
-        }}
-      />
-   
+        }}/>
       </View>
       <View
         style={{
@@ -423,19 +543,22 @@ await handleRefetch()
     borderRadius: 5,
     marginTop: 10,
   }}>Add Admin</Text>
-    
+    <View style={styles.passwordContainer}>
     <TextInput
-      style={styles.input}
+      style={styles.passwordInput}
       placeholder="Email"
       value={newEmail}
       onChangeText={SetEmail}
     />
+    </View>
+    <View style={styles.passwordContainer}>
     <TextInput
-      style={styles.input}
+      style={styles.passwordInput}
       placeholder="Username"
       value={newUsername}
       onChangeText={setNewUsername}
     />
+    </View>
     <View style={styles.passwordContainer}>
   <TextInput
     style={styles.passwordInput}
@@ -585,7 +708,7 @@ await handleRefetch()
      >
        <View style={styles.imageContainer}>
          <Image source={{ uri: product.coverImage }} style={styles.image} />
-         <Text style={styles.title}>{product.title}</Text>
+         {/* <Text style={styles.title}>{product.title}</Text> */}
        </View>
      </TouchableOpacity>
       )))}
@@ -703,6 +826,60 @@ await handleRefetch()
             color: "#3A3A3A",
           }}
         >
+          Recently Joined Users
+        </Text>
+        {/* <Image source={Add} style={{ width: 30, height: 30 }} /> */}
+
+      </View>
+   
+    
+      <View style={styles.usersList}>
+      {dataStats3?.map((user) => (
+        <RecentlyJoinedUser key={user.id} user={user} />
+      ))}
+    </View>
+    <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginTop: "10%",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            color: "#3A3A3A",
+          }}
+        >
+         Messages 
+        </Text>
+        {/* <Image source={Add} style={{ width: 30, height: 30 }} /> */}
+
+      </View>
+   
+    
+      <View style={styles.usersList}>
+      {dataStats4?.map((user) => (
+        <ContactUs key={user.id} user={user} />
+      ))}
+    </View>
+
+    
+    <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          marginTop: "10%",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            color: "#3A3A3A",
+          }}
+        >
           About
         </Text>
         {/* <Image source={Add} style={{ width: 30, height: 30 }} /> */}
@@ -710,17 +887,16 @@ await handleRefetch()
       </View>
    
     <View style={styles.buttonBox}>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate("Privacy")} >
           <Text style={styles.buttonText}>Privacy </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button} onPress={()=>navigation.navigate("AboutUs")} > 
           <Text style={styles.buttonText}>About Us</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={styles.button}  onPress={()=>navigation.navigate("Faqs")}>
           <Text style={styles.buttonText}>FAQS</Text>
         </TouchableOpacity>
       </View>
-    
     <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
   <Text style={styles.logoutButtonText}>Logout</Text>
 </TouchableOpacity>
@@ -745,6 +921,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
+    usersList: {
+      padding: 10,
+    },
+    userContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: '#ccc',
+      padding: 10,
+      marginVertical: 5,
+      borderRadius: 5,
+    },
+    avatar: {
+      width: 50,
+      height: 50,
+      borderRadius: 25,
+      marginRight: 10,
+    },
+    userInfo: {
+      flex: 1,
+    },
+    userName: {
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    email: {
+      fontSize: 14,
+      color: '#555',
+    },
   input: {
     width: '80%',
     height: 40,
@@ -798,6 +1003,18 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 10,
     borderRadius: 5,
+  },
+  replyButton: {
+    backgroundColor:"#38164A",
+    padding: 8,
+    borderRadius: 5,
+    marginTop: 5,
+    alignItems: 'center',
+  },
+  replyButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight:"bold"
   },
   passwordInput: {
     flex: 1,
@@ -861,7 +1078,7 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     // marginBottom: 8/,
-    resizeMode: 'contain',
+    resizeMode: "stretch",
   },
   modalContainer: {
     flex: 1,

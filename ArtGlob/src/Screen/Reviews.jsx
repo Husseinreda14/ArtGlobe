@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Modal } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, StyleSheet, Modal, Alert } from 'react-native';
 import BackIcon from '../../assets/Images/back-icon.png';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -25,7 +25,7 @@ const handleRefetch = async () => {
   
 
         const response = await axios.delete(
-          `http://${global.IP}:3003/review/deleteone/${selectedReview.id}`,
+          `${global.IP}/review/deleteone/${selectedReview.id}`,
        
           {
             headers: {
@@ -40,7 +40,7 @@ const handleRefetch = async () => {
         // Handle response as needed
       
       } catch (error) {
-        alert(error.response.data.message);
+       Alert.alert(error.response.data.message);
       }
     
     

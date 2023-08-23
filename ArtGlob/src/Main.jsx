@@ -14,6 +14,11 @@ import Partner from "./Screen/Partner";
 import Product from "./Screen/Product";
 import Reviews from "./Screen/Reviews";
 
+import AboutUs from "./Screen/aboutUs";
+import Privacy from "./Screen/Privacy";
+import Faqs from "./Screen/faqs";
+import UserPage from "./Screen/UserPage";
+
 function Main() {
   return (
     <NavigationContainer>
@@ -29,9 +34,27 @@ function Main() {
           options={{ headerShown: false }}
           
         />
+           <Stack.Screen
+          name="Faqs"
+          component={Faqs}
+          options={{ headerShown: false }}
+          
+        />
+         <Stack.Screen
+          name="Privacy"
+          component={Privacy}
+          options={{ headerShown: false }}
+          
+        />
          <Stack.Screen
           name="Reviews"
           component={Reviews}
+          options={{ headerShown: false }}
+          
+        />
+          <Stack.Screen
+          name="AboutUs"
+          component={AboutUs}
           options={{ headerShown: false }}
           
         />
@@ -58,7 +81,12 @@ function Main() {
           name="MainPage"
           component={MainPage}
           options={{ headerShown: false }}
-        />
+        /> 
+          <Stack.Screen
+        name="UserPage"
+        component={UserPage}
+        options={{ headerShown: false }}
+      />
         <Stack.Screen
           name="Notification"
           component={Notification}

@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 
 const Signin = ({navigation}) => {
   const [username, setUsername] = useState('');
@@ -10,8 +10,11 @@ const Signin = ({navigation}) => {
 
   const handleLogin = async () => {
     try {
-      setLoading(true);
-      const res = await axios.post(`http://${global.IP}:3003/auth/loginAdmin`, { username, password });
+      if(username=="" || password=="" ){
+        Alert.alert("Please enter all fields")
+      }else
+      {setLoading(true);
+      const res = await axios.post(`${global.IP}/auth/loginAdmin`, { username, password });
 // console.log(res.data.token);
 await AsyncStorage.setItem("token",res.data.token)
 await AsyncStorage.setItem("username",res.data.user.username)
@@ -20,9 +23,9 @@ await AsyncStorage.setItem("role",res.data.user.role)
       navigation.reset({
         index: 0,
         routes: [{ name: 'Home' }],
-      });
+      });}
     } catch (err) {
-      alert(err.response.data.message);
+      Alert.alert(err.response.data.message);
     } finally {
       setLoading(false);
     }
@@ -61,10 +64,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 16,
+    backgroundColor: '#ECEFF1', // A light background color
   },
   heading: {
     fontSize: 24,
     marginBottom: 16,
+    color: '#2E3440', // Dark text for contrast
   },
   input: {
     width: '100%',
@@ -73,12 +78,25 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 16,
     paddingHorizontal: 8,
+    backgroundColor: 'white',
+    borderRadius: 8, 
+    elevation: 3, // Android shadow
+    shadowColor: '#000', // iOS shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   button: {
     backgroundColor: '#38164A',
-    paddingVertical: 12,
+    paddingVertical: 10,
     paddingHorizontal: 24,
-    borderRadius: 4,
+    borderRadius: 50,  // Rounded edges for a pill-like button
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.36,
+    shadowRadius: 6.68,
+    transform: [{ scale: 1 }], // Default scale
   },
   disabledButton: {
     backgroundColor: 'lightgray',
@@ -89,5 +107,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
 
 export default Signin;

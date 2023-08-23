@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, TextInput, TouchableOpacity, StyleSheet, Linking } from 'react-native';
+import { View, Text, Image, ScrollView, TextInput, TouchableOpacity, StyleSheet, Linking, Alert } from 'react-native';
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -38,7 +38,7 @@ const handleRefetch = async () => {
   
 
         const response = await axios.delete(
-          `http://${global.IP}:3003/product/deleteone/${product.id}`,
+          `${global.IP}/product/deleteone/${product.id}`,
        
           {
             headers: {
@@ -52,7 +52,7 @@ const handleRefetch = async () => {
         // Handle response as needed
       
       } catch (error) {
-        alert(error.response.data.message);
+        Alert.alert(error.response.data.message);
       }
     
     
